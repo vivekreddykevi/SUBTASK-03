@@ -1,6 +1,6 @@
-SUBTASK-03 GITHUB ACTION
+Subtask-3 github action
 
 
-THIS REPOSITORY IS WHICH I MADE TO DEMONSTRATE THE GITHUB ACTION WORKFLOW 
-THIS WORKFLOW GREETS THE USER WHENEVER HE MAKES AN ISSUE IN THIS REPOSITORY 
+This repository is which i made to demonstrate github action
+This workflow greets the user whenver he makes an issue in his repository
 Thank you Coding club 😄
