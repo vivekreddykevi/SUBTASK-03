@@ -1,18 +1,25 @@
-name: Issue Workflow
+
+name: Add Label on PR Merge
+
 on:
-  issues:
-    types: [opened]
+  pull_request:
+    types:
+      - closed
+
 jobs:
-  build:
+  add-label:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Greet user
+      - name: Check if PR is merged
+        id: pr-merged
+        run: echo "::set-output name=merged::${{ github.event.pull_request.merged }}"
+
+      - name: Add label
+        if: steps.pr-merged.outputs.merged == 'true'
         run: |
-          curl \
-            -X POST \
-            -H "Authorization: token ${{ secrets.VIVEK_TOKEN }}" \
-            -H "Accept: application/vnd.github+json" \
-            https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.issue.number }}/comments \
-            -d '{"body":"Hello user😊\\\nThanks for opening an issue  we will sort it out soon!!!\\\nHave a nice day.\\\n By that time enjoy this meme👇🏻\\\n![Image](https://i.pinimg.com/originals/95/d3/e9/95d3e90e780ad7bc70e4dd985d70493f.jpg)"}'
+          echo "Merging PR. Adding 'hacktoberfest-accepted' label."
+          # Use GitHub API to add the label
+          curl -X POST -H "Authorization: token ${{ secrets.VIVEK_TOKEN }}" \
+            -d '{"labels":["hacktoberfest-accepted"]}' \
+            "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/labels"
