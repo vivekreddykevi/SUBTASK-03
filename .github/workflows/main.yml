@@ -1,15 +1,20 @@
-name: PR Labeler
+name: Label issues
 on:
-  pull_request:
-    types: [closed]
-
+  issues:
+    types:
+      - opened
 jobs:
-  pr-labeler:
-    if: github.event.pull_request.merged == true
+  label_issues:
     runs-on: ubuntu-latest
+    permissions:
+      issues: write
     steps:
-      - uses: TimonVS/pr-labeler-action@v3
+      - uses: actions/github-script@v6
         with:
-          configuration-path: .github/workflows/pr-labeler.yml # optional, .github/pr-labeler.yml is the default value
-        env:
-          GITHUB_TOKEN: ${{ secrets.VIVEK_TOKEN }}
+          script: |
+            github.rest.issues.addLabels({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: ["hacktoberfest"]
+            })
