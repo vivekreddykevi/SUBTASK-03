@@ -1,25 +1,19 @@
-
-name: Add Label on PR Merge
+name: Add Labels on Issue Create
 
 on:
-  pull_request:
+  issues:
     types:
-      - closed
+      - opened
 
 jobs:
-  add-label:
+  add-labels:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check if PR is merged
-        id: pr-merged
-        run: echo "::set-output name=merged::${{ github.event.pull_request.merged }}"
-
-      - name: Add label
-        if: steps.pr-merged.outputs.merged == 'true'
+      - name: Add labels
         run: |
-          echo "Merging PR. Adding 'hacktoberfest-accepted' label."
-          # Use GitHub API to add the label
-          curl -X POST -H "Authorization: token ${{ secrets.VIVEK_TOKEN }}" \
-            -d '{"labels":["hacktoberfest-accepted"]}' \
-            "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/labels"
+          echo "Creating a new issue. Adding 'hacktoberfest' and 'hacktoberfest2023' labels."
+          # Use GitHub API to add the labels
+          curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -d '{"labels":["hacktoberfest", "hacktoberfest2023"]}' \
+            "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.issue.number }}/labels"
