@@ -1,19 +1,24 @@
+name: Comment on assigned issue
+
 on:
-  pull_request_target:
+  issues:
     types:
-      - closed
-   pull_request:
-    types:
-      - closed
+      - assigned
 
 jobs:
-  label:
-    if: github.event.pull_request.merged == true
+  comment-on-issue:
     runs-on: ubuntu-latest
+    permissions:
+      issues: write
     steps:
-      # https://github.com/marketplace/actions/pr-labeler-based-on-multiple-rules
-      - uses: srvaroa/labeler@v0.8
+      - name: Add comment
+        uses: peter-evans/create-or-update-comment@v5f728c3dae25f329afbe34ee4d08eef25569d79f
         with:
-          config_path: .github/workflows/labeler_config.js
-        env:
-          GITHUB_TOKEN: "${{ secrets.VIVEK_TOKEN }}"
+          issue-number: ${{ github.event.issue.number }}
+          body: |
+            Hi @{{ github.event.assignees[0].login }},
+
+            You have been assigned to this issue. Please let me know if you have any questions.
+
+            Thanks,
+            [Your name]
