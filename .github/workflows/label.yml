@@ -12,13 +12,18 @@ jobs:
       issues: write
     steps:
       - name: Add comment
-        uses: peter-evans/create-or-update-comment@v5f728c3dae25f329afbe34ee4d08eef25569d79f
+        uses: actions/github-script@v6
         with:
-          issue-number: ${{ github.event.issue.number }}
-          body: |
-            Hi @{{ github.event.assignees[0].login }},
+          script: |
+            const issue = github.issues.get(github.event.issue.number);
+            const assignee = issue.assignees[0];
 
-            You have been assigned to this issue. Please let me know if you have any questions.
+            github.issues.createComment(issue.number, {
+              body: `Hi @${assignee.login},
 
-            Thanks,
-            [Your name]
+              You have been assigned to this issue. Please let me know if you have any questions.
+
+              Thanks,
+              [Your name]`
+            });
+
