@@ -1,19 +1,15 @@
-name: Add Labels on Issue Create
-
+name: PR Labeler
 on:
-  issues:
-    types:
-      - opened
+  pull_request:
+    types: [closed]
 
 jobs:
-  add-labels:
+  pr-labeler:
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
-
     steps:
-      - name: Add labels
-        run: |
-          echo "Creating a new issue. Adding 'hacktoberfest' and 'hacktoberfest2023' labels."
-          # Use GitHub API to add the labels
-          curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            -d '{"labels":["hacktoberfest", "hacktoberfest2023"]}' \
-            "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.issue.number }}/labels"
+      - uses: TimonVS/pr-labeler-action@v3
+        with:
+          configuration-path: .github/pr-labeler.yml # optional, .github/pr-labeler.yml is the default value
+        env:
+          GITHUB_TOKEN: ${{ secrets.VIVEK_TOKEN }}
