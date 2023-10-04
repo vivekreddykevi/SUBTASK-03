@@ -1,4 +1,0 @@
-version: 1
-labels:
-  - label: "hacktoberfest-accepted"
-    size-above: 1
