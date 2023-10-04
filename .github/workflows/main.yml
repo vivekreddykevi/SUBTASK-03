@@ -1,3 +1,10 @@
+name: Add Hacktoberfest Label
+
+on:
+  pull_request:
+    types:
+      - closed
+
 jobs:
   add-hacktoberfest-label:
     runs-on: ubuntu-latest
