@@ -1,9 +1,10 @@
-User
+name: Label Pull Requests
+
 on:
   pull_request_target:
     types:
       - closed
-   pull_request:
+  pull_request:
     types:
       - closed
 
@@ -12,9 +13,9 @@ jobs:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
-      # https://github.com/marketplace/actions/pr-labeler-based-on-multiple-rules
-      - uses: srvaroa/labeler@v0.8
+      - name: Label PR
+        uses: srvaroa/labeler@v0.8
         with:
           config_path: .github/labeler_config.yml
         env:
-          GITHUB_TOKEN: "${{ secrets.VIVEK_TOKEN }}"
+          GITHUB_TOKEN: ${{ secrets.VIVEK_TOKEN }}
