@@ -14,4 +14,4 @@ jobs:
       with:
         message: Thanks for taking this issue! Let us know if you have any questions!
         trigger: .assign
-        token: ${{ secrets.VIVEKS_TOKEN }}
+        token: ${{ secrets.KEVI_TOKEN }}
