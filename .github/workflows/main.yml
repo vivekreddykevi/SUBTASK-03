@@ -1,22 +1,20 @@
-name: Assign Issue
-
+User
 on:
-  schedule:
-    - cron: 0 0 * * *
-  issue_comment:
-    types: [created]
-  workflow_dispatch:
+  pull_request_target:
+    types:
+      - closed
+   pull_request:
+    types:
+      - closed
 
 jobs:
-  assign:
+  label:
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
-      - name: Assign the user or unassign stale assignments
-        uses: takanome-dev/assign-issue-action@v2.1.1
+      # https://github.com/marketplace/actions/pr-labeler-based-on-multiple-rules
+      - uses: srvaroa/labeler@v0.8
         with:
-          github_token: '${{ secrets.VIVEK_TOKEN }}'
-          # trigger: '/assign-me' # you can change the default trigger to something else
-          # required_label: # if present, the issue must have this label to be assigned
-          # assigned_label: 📍 Assigned
-          # days_until_unassign: 3
-          # learn more about the inputs below ⬇
+          config_path: .github/labeler_config.yml
+        env:
+          GITHUB_TOKEN: "${{ secrets.VIVEK_TOKEN }}"
