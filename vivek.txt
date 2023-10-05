@@ -7,7 +7,6 @@ rddddd
 CHECKING ACTIONccc
 ccc
 ddd
-fff
-gggg
+fffgggg
 GGGGG
 gggg
