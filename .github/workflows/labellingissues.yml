@@ -27,7 +27,7 @@ jobs:
         fi
 
         # Check if the contributor has a 'Welcome' label (indicating they are not new)
-        if curl -s -H "Authorization: token ${{ secrets.VIVEK_TOKEN }}" \
+        if curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
           "https://api.github.com/repos/${{ github.repository }}/issues/$issue_number/labels" | \
           jq -e ".[] | select(.name == \"$welcome_label\")" > /dev/null; then
           echo "Contributor $contributor is not new, skipping."
@@ -41,7 +41,7 @@ jobs:
       id: select_meme
       run: |
         # Parse the JSON file to extract the meme data
-        memes=$(jq -r '.memes[] | {name, url}' memes.json)
+        memes=$(jq -r '.memes[] | {name, url}' ./memes.json)  # Correct path to memes.json
 
         # Convert the JSON data into an array
         IFS=$'\n' read -d '' -a meme_array <<< "$memes"
@@ -72,4 +72,5 @@ jobs:
         fi
       shell: bash
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.VIVEK_TOKEN }}
+
