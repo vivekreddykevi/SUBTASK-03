@@ -27,7 +27,7 @@ jobs:
         fi
 
         # Check if the contributor has a 'Welcome' label (indicating they are not new)
-        if curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+        if curl -s -H "Authorization: token ${{ secrets.VIVEK_TOKEN }}" \
           "https://api.github.com/repos/${{ github.repository }}/issues/$issue_number/labels" | \
           jq -e ".[] | select(.name == \"$welcome_label\")" > /dev/null; then
           echo "Contributor $contributor is not new, skipping."
