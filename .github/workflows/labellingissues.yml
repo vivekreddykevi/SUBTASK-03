@@ -1,76 +1,39 @@
-name: Welcome New Contributor
+name: Welcome New Contributors
 
 on:
-  pull_request:
+  issues:
     types:
       - opened
-  issues:
+  pull_request:
     types:
       - opened
 
 jobs:
-  welcome_contributor:
+  welcome:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Check if contributor is new
-      id: check_new_contributor
-      run: |
-        contributor="${{ github.event.pull_request.user.login }}"
-        event_type="${{ github.event_name }}"
-        welcome_label="Welcome"
-        
-        if [ "$event_type" == "issues" ]; then
-          issue_number="${{ github.event.issue.number }}"
-        else
-          issue_number="${{ github.event.pull_request.number }}"
-        fi
+      - name: Check First Contribution
+        run: |
+          # Use GitHub API to check if this is the first contribution by the author
+          # Set an environment variable or a flag if it's their first contribution
+        env:
+          FIRST_CONTRIBUTION: ${{ steps.check-contribution.outputs.first-contribution }}
 
-        # Check if the contributor has a 'Welcome' label (indicating they are not new)
-        if curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-          "https://api.github.com/repos/${{ github.repository }}/issues/$issue_number/labels" | \
-          jq -e ".[] | select(.name == \"$welcome_label\")" > /dev/null; then
-          echo "Contributor $contributor is not new, skipping."
-          exit 1
-        fi
-      shell: bash
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Post Welcome Comment
+        if: env.FIRST_CONTRIBUTION == 'true'
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.VIVEK_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const memeData = fs.readFileSync('.github/workflows/225.png', 'base64');
+            const body = `Thank you for your contribution! :tada:\n\n![Welcome Meme](data:image/png;base64,${memeData})\n\nWelcome to our community!`;
 
-    - name: Select a random welcome meme
-      id: select_meme
-      run: |
-        # Parse the JSON file to extract the meme data
-        memes=$(jq -r '.memes[] | {name, url}' ./memes.json)  # Correct path to memes.json
-
-        # Convert the JSON data into an array
-        IFS=$'\n' read -d '' -a meme_array <<< "$memes"
-
-        # Get a random index to select a meme
-        random_index=$((RANDOM % ${#meme_array[@]}))
-
-        # Extract the random meme URL
-        meme_url=$(echo "${meme_array[$random_index]}" | jq -r '.url')
-      shell: bash
-
-    - name: Create Welcome Comment
-      id: create_comment
-      run: |
-        contributor="${{ github.event.pull_request.user.login }}"
-        meme_url="${{ steps.select_meme.outputs.meme_url }}"
-        event_type="${{ github.event_name }}"
-        issue_number="${{ github.event.pull_request.number }}"
-        
-        comment_body="Hey @$contributor, welcome to our open-source project! 🎉\n\nHere's a meme just for you:\n\n![Meme]($meme_url)\n\nWe're excited to have you on board. If you have any questions or need assistance, feel free to ask. Happy coding! 😄"
-        
-        if [ "$event_type" == "issues" ]; then
-          echo "Adding comment to issue #$issue_number"
-          gh issue comment "$issue_number" --body "$comment_body"
-        else
-          echo "Adding comment to pull request #$issue_number"
-          gh pr comment "$issue_number" --body "$comment_body"
-        fi
-      shell: bash
-      env:
-        GITHUB_TOKEN: ${{ secrets.VIVEK_TOKEN }}
+            github.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });
 
