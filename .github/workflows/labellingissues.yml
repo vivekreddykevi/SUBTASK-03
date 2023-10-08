@@ -20,6 +20,17 @@ jobs:
         env:
           FIRST_CONTRIBUTION: ${{ steps.check-contribution.outputs.first-contribution }}
 
+      - name: Select Random Welcome Meme
+        id: random-meme
+        run: |
+          
+          memes=(".github/workflows/225.png" ".github/workflows/224.png" ".github/workflows/223.png")
+         
+          random_index=$((RANDOM % ${#memes[@]}))
+          selected_meme=${memes[$random_index]}
+          echo "::set-output name=meme-path::$selected_meme"
+        shell: bash
+
       - name: Post Welcome Comment
         if: env.FIRST_CONTRIBUTION == 'true'
         uses: actions/github-script@v6
@@ -27,7 +38,7 @@ jobs:
           github-token: ${{ secrets.VIVEK_TOKEN }}
           script: |
             const fs = require('fs');
-            const memeData = fs.readFileSync('.github/workflows/225.png', 'base64');
+            const memeData = fs.readFileSync('${{ steps.random-meme.outputs.meme-path }}', 'base64');
             const body = `Thank you for your contribution! :tada:\n\n![Welcome Meme](data:image/png;base64,${memeData})\n\nWelcome to our community!`;
 
             github.issues.createComment({
