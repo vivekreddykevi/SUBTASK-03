@@ -46,11 +46,12 @@ jobs:
         with:
           github-token: ${{ secrets.VIVEK_TOKEN }}
           script: |
-            const body = `Thank you for making your first contribution to our project! :tada:\n\nWelcome to our community. We're excited to have you on board! :rocket:\n\nHere's a random meme to brighten your day: ![Meme](${env.MEME_URL})\n\n${context.payload.issue.html_url}`;
+            const body = `Thank you for making your first contribution to our project! :tada:\n\nWelcome to our community. We're excited to have you on board! :rocket:\n\nHere's a random meme to brighten your day: ![Meme](${process.env.MEME_URL})\n\n${context.payload.issue.html_url}`;
             github.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: body
             });
+
 
