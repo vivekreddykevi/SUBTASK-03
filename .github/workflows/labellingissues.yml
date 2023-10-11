@@ -54,7 +54,5 @@ jobs:
             issue_number: github.context.issue.number,
             body,
           });
-        env:
-          GITHUB_TOKEN: ${{ secrets.VIVEK_TOKEN }}
 
 
