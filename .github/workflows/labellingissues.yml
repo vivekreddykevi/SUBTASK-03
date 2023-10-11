@@ -14,31 +14,39 @@ jobs:
 
     steps:
       - name: Check First Contribution
+        id: check-contribution
         run: |
-          # Use GitHub API to check if this is the first contribution by the author
-          # Set an environment variable or a flag if it's their first contribution
+          USER_CONTRIBUTIONS=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                             "https://api.github.com/repos/${{ github.repository }}/contributors/${{ github.event.issue.user.login }}/events")
+          # Check if there are no previous contributions (issues or pull requests) by the user in your repository
+          if [[ $(echo "$USER_CONTRIBUTIONS" | jq 'map(select(.type | test("^(IssuesEvent|PullRequestEvent)$") | not)) | length') -eq 0 ]]; then
+            echo "::set-output name=first-contribution::true"
+          else
+            echo "::set-output name=first-contribution::false"
+          fi
         env:
           FIRST_CONTRIBUTION: ${{ steps.check-contribution.outputs.first-contribution }}
 
-      - name: Select Random Welcome Meme
-        id: random-meme
+      - name: Fetch Random Meme
+        id: fetch-meme
         run: |
-          memes=(".github/workflows/225.png" ".github/workflows/224.png" ".github/workflows/223.png")
-          random_index=$((RANDOM % ${#memes[@]}))
-          selected_meme=${memes[$random_index]}
-          echo "MEME_PATH=$selected_meme" >> $GITHUB_ENV
-        shell: bash
+          # Fetch a random meme using the external API
+          MEME_API_KEY=${{ secrets.MEME_API_KEY }}
+          MEME_API_URL="https://api.example.com/memes"  # Replace with the actual meme API URL
+
+          # Use your favorite HTTP client to fetch memes
+          # Example with curl:
+          meme_url=$(curl -s -H "X-Api-Key: $MEME_API_KEY" $MEME_API_URL | jq -r '.url')
+
+          echo "MEME_URL=$meme_url" >> $GITHUB_ENV
 
       - name: Post Welcome Comment
-        if: env.FIRST_CONTRIBUTION == 'true'
+        if: steps.check-contribution.outputs.first-contribution == 'true'
         uses: actions/github-script@v6
         with:
           github-token: ${{ secrets.VIVEK_TOKEN }}
           script: |
-            const fs = require('fs');
-            const memeData = fs.readFileSync('${{ env.MEME_PATH }}', 'base64');
-            const body = `Thank you for your contribution! :tada:\n\n![Welcome Meme](data:image/png;base64,${memeData})\n\nWelcome to our community!`;
-
+            const body = `Thank you for making your first contribution to our project! :tada:\n\nWelcome to our community. We're excited to have you on board! :rocket:\n\nHere's a random meme to brighten your day: ![Meme](${env.MEME_URL})\n\n${context.payload.issue.html_url}`;
             github.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
