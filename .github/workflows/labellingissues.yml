@@ -42,16 +42,19 @@ jobs:
 
       - name: Post Welcome Comment
         if: steps.check-contribution.outputs.first-contribution == 'true'
-        uses: actions/github-script@v6
-        with:
-          github-token: ${{ secrets.VIVEK_TOKEN }}
-          script: |
-            const body = `Thank you for making your first contribution to our project! :tada:\n\nWelcome to our community. We're excited to have you on board! :rocket:\n\nHere's a random meme to brighten your day: ![Meme](${process.env.MEME_URL})\n\n${context.payload.issue.html_url}`;
-            github.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: body
-            });
+        run: |
+          const github = require('@actions/github');
+          const { owner, repo } = github.context.repo;
+
+          const body = `Thank you for making your first contribution to our project! :tada:\n\nWelcome to our community. We're excited to have you on board! :rocket:\n\nHere's a random meme to brighten your day: ![Meme](${process.env.MEME_URL})\n\n${github.context.payload.issue.html_url}`;
+          const octokit = new github.GitHub(process.env.VIVEK_TOKEN);
+          octokit.issues.createComment({
+            owner,
+            repo,
+            issue_number: github.context.issue.number,
+            body,
+          });
+        env:
+          GITHUB_TOKEN: ${{ secrets.VIVEK_TOKEN }}
 
 
